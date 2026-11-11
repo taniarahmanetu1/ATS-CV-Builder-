@@ -1,1 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free ATS CV Builder — by Tania Rahman</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080e;--bg2:#0f0f1a;--bg3:#161625;
+  --border:rgba(255,255,255,0.07);--border2:rgba(236,72,153,0.3);
+  --text:#ededf5;--muted:#6b6b8e;
+  --pink:#ec4899;--violet:#8b5cf6;--teal:#06d6a0;--gold:#f59e0b;--red:#ef4444;
+  --grad:linear-gradient(135deg,#ec4899,#8b5cf6);
+  --ff-h:'Fraunces',Georgia,serif;
+  --ff-b:'DM Sans',system-ui,sans-serif;
+  --ff-m:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-b);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── BG ── */
+.bg-aura{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.ab{position:absolute;border-radius:50%;filter:blur(130px);animation:blobDrift linear infinite alternate}
+.ab:nth-child(1){width:700px;height:700px;top:-250px;left:-200px;background:rgba(236,72,153,0.07);animation-duration:20s}
+.ab:nth-child(2){width:600px;height:600px;top:50%;right:-200px;background:rgba(139,92,246,0.06);animation-duration:25s}
+.ab:nth-child(3){width:500px;height:500px;bottom:-150px;left:25%;background:rgba(6,214,160,0.04);animation-duration:17s}
+@keyframes blobDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(50px,70px) scale(1.18)}}
+
+/* ── AUTH OVERLAY ── */
+.auth-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{background:var(--bg2);border:1px solid rgba(236,72,153,0.18);border-radius:28px;padding:44px 40px;width:100%;max-width:460px;box-shadow:0 40px 100px rgba(0,0,0,0.6)}
+.auth-brand{text-align:center;margin-bottom:30px}
+.auth-brand-badge{width:60px;height:60px;border-radius:18px;background:var(--grad);display:inline-flex;align-items:center;justify-content:center;font-family:var(--ff-h);font-size:26px;font-weight:700;color:#fff;margin-bottom:14px;box-shadow:0 8px 24px rgba(236,72,153,0.3)}
+.auth-brand-name{font-family:var(--ff-h);font-size:26px;font-weight:700;color:#fff}
+.auth-brand-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.auth-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:4px;gap:4px;margin-bottom:26px}
+.auth-tab{flex:1;padding:11px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-family:var(--ff-b);font-size:14px;font-weight:600;cursor:pointer;transition:all .25s}
+.auth-tab.active{background:var(--grad);color:#fff;box-shadow:0 4px 16px rgba(236,72,153,0.3)}
+.af{margin-bottom:16px}
+.af label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.ai{width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .25s,box-shadow .25s}
+.ai:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(236,72,153,0.12)}
+.ai::placeholder{color:rgba(255,255,255,0.18)}
+.auth-btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad);color:#fff;font-family:var(--ff-b);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(236,72,153,0.3);margin-top:6px}
+.auth-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(236,72,153,0.4)}
+.auth-divider{text-align:center;font-size:12px;color:var(--muted);margin:18px 0;display:flex;align-items:center;gap:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-skip{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--ff-b);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.auth-skip:hover{border-color:var(--text);color:var(--text)}
+.auth-msg{padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:14px;display:none}
+.auth-msg.err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red)}
+.auth-msg.ok{background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.2);color:var(--teal)}
+.auth-note{font-size:10px;color:var(--muted);text-align:center;margin-top:14px}
+
+/* ── APP ── */
+.app{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 24px 80px}
+.site-header{padding:20px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:44px}
+.logo-wrap{display:flex;align-items:center;gap:13px}
+.logo-b{width:42px;height:42px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--ff-h);font-size:18px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(236,72,153,0.25)}
+.logo-t{font-family:var(--ff-h);font-size:20px;font-weight:700;color:#fff}
+.logo-s{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.free-badge{display:flex;align-items:center;gap:7px;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.2);border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--teal)}
+.pd{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:100px;padding:5px 14px 5px 5px;font-size:12px;font-weight:600;color:var(--text)}
+.uav{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.uav img{width:100%;height:100%;object-fit:cover}
+.btn-logout{padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--ff-b);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:52px}
+.hero-lbl{display:inline-flex;align-items:center;gap:7px;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:600;color:var(--pink);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px}
+.hero-h{font-family:var(--ff-h);font-size:clamp(28px,4.5vw,52px);font-weight:700;color:#fff;line-height:1.1;margin-bottom:14px}
+.hero-h span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-p{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 26px;line-height:1.7}
+.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:100px;padding:6px 15px;font-size:12px;font-weight:500;color:var(--muted)}
+
+/* ── STEP BAR ── */
+.step-bar{display:flex;align-items:center;justify-content:center;margin-bottom:40px;flex-wrap:wrap;row-gap:14px}
+.sw{display:flex;flex-direction:column;align-items:center}
+.sc{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:all .4s;border:2px solid var(--border);color:var(--muted);background:var(--bg2);cursor:pointer;position:relative}
+.sc.active{border-color:var(--pink);color:#fff;background:linear-gradient(135deg,#ec4899,#8b5cf6);box-shadow:0 0 22px rgba(236,72,153,.35)}
+.sc.done{border-color:var(--teal);color:var(--teal);background:rgba(6,214,160,.08)}
+.sc.done .sn{display:none}
+.sc.done::after{content:'✓';position:absolute;font-size:14px}
+.sl{font-size:10px;font-weight:600;color:var(--muted);text-align:center;margin-top:5px;transition:color .3s}
+.sl.active{color:var(--pink)}
+.sl.done{color:var(--teal)}
+.scon{width:42px;height:2px;background:var(--border);transition:background .4s;flex-shrink:0}
+.scon.done{background:var(--teal)}
+
+/* ── GRID ── */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:920px){.main-grid{grid-template-columns:1fr}}
+
+/* ── FORM PANEL ── */
+.fp{background:var(--bg2);border:1px solid var(--border);border-radius:24px;overflow:hidden}
+.fp-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.si-bg{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.fp-title{font-size:17px;font-weight:700;color:#fff}
+.fp-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.fb{padding:22px 24px}
+
+/* ── FIELDS ── */
+.fg{margin-bottom:17px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px}
+.req{color:var(--pink);margin-left:3px}
+.fi,.ft,.fs{width:100%;padding:11px 15px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--ff-b);font-size:13px;transition:border-color .25s,box-shadow .25s;outline:none}
+.fi:focus,.ft:focus,.fs:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(236,72,153,.12)}
+.fi::placeholder,.ft::placeholder{color:rgba(255,255,255,.18)}
+.fs option{background:#1a1a26}
+.ft{resize:vertical;min-height:82px;line-height:1.6}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fhint{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* ── PHOTO UPLOAD ── */
+.photo-zone{border:2px dashed rgba(236,72,153,.3);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(236,72,153,.025);position:relative;overflow:hidden}
+.photo-zone:hover{border-color:var(--pink);background:rgba(236,72,153,.06)}
+.photo-zone.ready{border-style:solid;border-color:var(--teal);background:rgba(6,214,160,.04)}
+.photo-file-inp{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pp-row{display:flex;align-items:center;gap:16px;text-align:left}
+.pp-img{width:70px;height:90px;border-radius:6px;object-fit:cover;border:2.5px solid var(--teal);flex-shrink:0;box-shadow:0 4px 16px rgba(6,214,160,.2)}
+.photo-spinner{font-size:11px;color:var(--teal);margin-top:8px;display:none}
+
+/* ── LINKS ── */
+.link-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.lp-btn{padding:8px 6px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--ff-b)}
+.lp-btn:hover{border-color:var(--pink);color:var(--pink)}
+.link-row{display:grid;grid-template-columns:44px 1fr 1fr 30px;align-items:center;gap:8px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:8px}
+.lic{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--ff-b);font-size:15px;padding:5px 6px;outline:none;cursor:pointer}
+
+/* ── ENTRY CARDS ── */
+.ec{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;transition:border-color .2s}
+.ec:hover{border-color:var(--border2)}
+.ec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ec-t{font-size:12px;font-weight:600;color:var(--pink);font-family:var(--ff-m)}
+.er{width:28px;height:28px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.er:hover{background:rgba(239,68,68,.15)}
+.sls{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.slb{padding:5px 12px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;font-family:var(--ff-b)}
+.slb.sel{border-color:var(--pink);color:var(--pink);background:rgba(236,72,153,.1)}
+.add-btn{width:100%;padding:11px;background:rgba(236,72,153,.06);border:1.5px dashed rgba(236,72,153,.3);border-radius:10px;color:var(--pink);font-family:var(--ff-b);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.add-btn:hover{background:rgba(236,72,153,.12);border-color:var(--pink)}
+
+/* ── NAV ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid var(--border);gap:12px}
+.btn{padding:11px 22px;border-radius:10px;font-family:var(--ff-b);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;display:flex;align-items:center;gap:8px}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 20px rgba(236,72,153,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(236,72,153,.38)}
+.btn-dl{background:linear-gradient(135deg,#06d6a0,#059669);color:#fff;box-shadow:0 4px 20px rgba(6,214,160,.25)}
+.btn-dl:hover{transform:translateY(-1px)}
+.btn-dl:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ── PREVIEW ── */
+.pv-panel{background:var(--bg2);border:1px solid var(--border);border-radius:24px;overflow:hidden;position:sticky;top:24px}
+.pv-hdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pv-title{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.ats-badge{display:flex;align-items:center;gap:6px;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.2);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--teal)}
+.pv-body{padding:14px;max-height:820px;overflow-y:auto}
+.pv-body::-webkit-scrollbar{width:4px}
+.pv-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.ats-bar-wrap{margin-bottom:13px}
+.ats-bar-lbl{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:5px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.ats-bar-bg{height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.ats-bar-fill{height:100%;border-radius:4px;transition:width .8s ease,background .5s}
+
+/* ── CV DOCUMENT ── */
+#cvdoc{background:#fff;color:#1a1a1a;border-radius:10px;overflow:hidden;font-family:'DM Sans',Arial,sans-serif;box-shadow:0 24px 64px rgba(0,0,0,.45)}
+.cv-hdr{padding:18px 22px 14px;border-bottom:2.5px solid #c2185b}
+.cv-hdr-inner{display:flex;align-items:flex-start;gap:16px}
+.cv-photo{width:72px;height:92px;border-radius:6px;object-fit:cover;object-position:center top;border:2.5px solid #c2185b;flex-shrink:0;box-shadow:0 4px 12px rgba(194,24,91,.2)}
+.cv-hdr-txt{flex:1}
+.cv-name{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:700;color:#c2185b;line-height:1;margin-bottom:3px}
+.cv-prof{font-size:10px;color:#444;font-weight:500;margin-bottom:7px}
+.cv-contacts{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:8.5px;color:#555}
+.cv-links{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:8px;color:#555;margin-top:3px}
+.cv-links a{color:#555;text-decoration:none}
+.cv-body{padding:13px 22px}
+.cvs{margin-bottom:12px}
+.cvst{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#c2185b;border-bottom:1.5px solid #c2185b;padding-bottom:3px;margin-bottom:9px;display:inline-block}
+.cve{margin-bottom:9px}
+.cveh{display:flex;justify-content:space-between;align-items:baseline}
+.cver{font-size:10.5px;font-weight:700;color:#1a1a1a}
+.cved{font-size:8.5px;color:#c2185b;font-weight:600;flex-shrink:0;margin-left:8px;white-space:nowrap}
+.cveo{font-size:9.5px;color:#555;font-style:italic;margin-top:1px}
+.cveds{font-size:9.5px;color:#444;line-height:1.55;margin-top:3px}
+.cvbl{padding-left:13px;margin-top:3px}
+.cvbl li{font-size:9.5px;color:#444;line-height:1.6;margin-bottom:2px}
+.cvtags{display:flex;flex-wrap:wrap;gap:3px 5px}
+.cvtag{background:#fce4ec;color:#c2185b;border:1px solid #f48fb1;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600}
+.cvskr{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.cvsn{font-size:9.5px;font-weight:600;width:115px;flex-shrink:0;color:#222}
+.cvsbg{background:#e0e0e0;border-radius:3px;height:5px;flex:1}
+.cvsf{background:linear-gradient(to right,#c2185b,#7b1fa2);border-radius:3px;height:100%}
+.cvsp{font-size:8px;color:#888;width:60px}
+.cv2c{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cvsum{font-size:9.5px;color:#333;line-height:1.65}
+.cv-empty-msg{text-align:center;padding:24px;font-size:12px;color:var(--muted)}
+.cv-empty-icon{font-size:30px;margin-bottom:8px}
+
+/* ── TIPS ── */
+.tips{margin-top:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
+.tips-t{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tip{display:flex;gap:10px;margin-bottom:10px}
+.tip-ic{font-size:14px;flex-shrink:0;margin-top:1px}
+.tip-tx{font-size:12px;color:var(--muted);line-height:1.5}
+.tip-tx strong{color:var(--text)}
+
+/* ── CREDIT ── */
+.credit{text-align:center;margin-top:48px;padding-top:28px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.credit a{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;text-decoration:none}
+.credit-b{display:inline-flex;align-items:center;gap:5px;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--pink)}
+
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:rgba(236,72,153,.3);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="bg-aura"><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
+
+<!-- ════════ AUTH MODAL ════════ -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <div class="auth-brand-badge">T</div>
+      <div class="auth-brand-name">Free ATS CV Builder</div>
+      <div class="auth-brand-sub">Create an account to access your CV anytime — always free</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+      <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Sign In</button>
+    </div>
+    <div id="auth-msg" class="auth-msg"></div>
+
+    <div id="form-signup">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+        <div class="af"><label>First Name</label><input class="ai" id="su-fn" placeholder="Ayesha"></div>
+        <div class="af"><label>Last Name</label><input class="ai" id="su-ln" placeholder="Siddiqui"></div>
+      </div>
+      <div class="af"><label>Email Address</label><input class="ai" type="email" id="su-em" placeholder="you@email.com"></div>
+      <div class="af" style="margin-top:14px;"><label>Password</label><input class="ai" type="password" id="su-pw" placeholder="Minimum 6 characters"></div>
+      <div class="af" style="margin-top:14px;"><label>Confirm Password</label><input class="ai" type="password" id="su-pw2" placeholder="Repeat password"></div>
+      <button class="auth-btn" onclick="doSignup()">Create Free Account →</button>
+    </div>
+
+    <div id="form-login" style="display:none;">
+      <div class="af"><label>Email Address</label><input class="ai" type="email" id="li-em" placeholder="you@email.com"></div>
+      <div class="af" style="margin-top:14px;"><label>Password</label><input class="ai" type="password" id="li-pw" placeholder="Your password"></div>
+      <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+    </div>
+
+    <div class="auth-divider">or continue without account</div>
+    <button class="auth-skip" onclick="skipAuth()">Use as Guest — no saving</button>
+    <p class="auth-note">🔒 All data stays in your browser. Nothing is sent to any server. No spam.</p>
+  </div>
+</div>
+
+<!-- ════════ MAIN APP ════════ -->
+<div class="app">
+  <header class="site-header">
+    <div class="logo-wrap">
+      <div class="logo-b">T</div>
+      <div><div class="logo-t">Tania Rahman</div><div class="logo-s">Free ATS CV Builder</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="free-badge"><div class="pd"></div>100% Free · No Credit Card</div>
+      <div id="user-chip" style="display:none;" class="user-chip">
+        <div class="uav" id="uav"></div>
+        <span id="uname"></span>
+      </div>
+      <button id="logout-btn" style="display:none;" class="btn-logout" onclick="doLogout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-lbl">✦ Professional Tool</div>
+    <h1 class="hero-h">Build Your <span>ATS-Friendly</span> CV<br>in Minutes — Completely Free</h1>
+    <p class="hero-p">Upload your photo (auto passport-crop + white background), add all your links, fill your details — download a perfect PDF.</p>
+    <div class="pills">
+      <div class="pill"><span>📸</span>Auto passport photo + white BG</div>
+      <div class="pill"><span>🔗</span>Add all social/portfolio links</div>
+      <div class="pill"><span>🤖</span>ATS-optimised format</div>
+      <div class="pill"><span>📄</span>PDF only download</div>
+      <div class="pill"><span>🔒</span>100% private</div>
+    </div>
+  </div>
+
+  <div class="step-bar" id="step-bar"></div>
+
+  <div class="main-grid">
+    <div class="fp" id="form-panel"></div>
+    <div class="pv-panel">
+      <div class="pv-hdr">
+        <div class="pv-title">📄 Live Preview</div>
+        <div class="ats-badge" id="ats-badge">ATS <span id="ats-val">0%</span></div>
+      </div>
+      <div class="pv-body">
+        <div class="ats-bar-wrap">
+          <div class="ats-bar-lbl"><span>ATS Score</span><span id="ats-lbl">0% — Start filling</span></div>
+          <div class="ats-bar-bg"><div class="ats-bar-fill" id="ats-fill" style="width:0%;background:#ef4444"></div></div>
+        </div>
+        <div id="cvdoc"><div class="cv-empty-msg"><div class="cv-empty-icon">📝</div>Start filling in your details to see your CV here</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tips">
+    <div class="tips-t">💡 ATS Pro Tips from Tania</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      <div class="tip"><div class="tip-ic">📸</div><div class="tip-tx"><strong>Any photo works</strong> — we auto-crop to passport size (35×45mm) and apply a clean white background for professionalism.</div></div>
+      <div class="tip"><div class="tip-ic">🔑</div><div class="tip-tx"><strong>Use exact keywords</strong> from the job description in your summary and skills — ATS matches literally.</div></div>
+      <div class="tip"><div class="tip-ic">🔗</div><div class="tip-tx"><strong>Add all your links</strong> — LinkedIn, Behance, GitHub, Fiverr, Upwork etc. give recruiters your full professional picture.</div></div>
+      <div class="tip"><div class="tip-ic">📊</div><div class="tip-tx"><strong>Quantify achievements</strong> — "Managed 50+ clients" scores far better than "managed many clients".</div></div>
+      <div class="tip"><div class="tip-ic">📄</div><div class="tip-tx"><strong>PDF only download</strong> — the Download button opens a print-ready page. Choose "Save as PDF" in the print dialog.</div></div>
+      <div class="tip"><div class="tip-ic">🎯</div><div class="tip-tx"><strong>Tailor each CV</strong> — even small keyword tweaks to match the job description can double your shortlist chance.</div></div>
+    </div>
+  </div>
+
+  <div class="credit">
+    <span class="credit-b">✨ Free Tool</span>
+    Built with ❤️ by <a href="https://www.fiverr.com/designer_taniar" target="_blank">Tania Rahman</a>
+    — Graphic Designer & Documentation Expert ·
+    <a href="https://www.fiverr.com/designer_taniar" target="_blank">Hire on Fiverr</a> ·
+    <a href="https://www.linkedin.com/in/tania-rahman-etu/" target="_blank">LinkedIn</a>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   AUTH  (localStorage, browser-only)
+═══════════════════════════════════ */
+const DB='tania_cv_users', SK='tania_cv_sess';
+const getUsers=()=>{try{return JSON.parse(localStorage.getItem(DB)||'{}')}catch{return{}}};
+const saveUsers=u=>localStorage.setItem(DB,JSON.stringify(u));
+const getSess=()=>{try{return JSON.parse(localStorage.getItem(SK)||'null')}catch{return null}};
+const setSess=u=>localStorage.setItem(SK,JSON.stringify(u));
+const clrSess=()=>localStorage.removeItem(SK);
+
+function showMsg(type,txt){
+  const el=document.getElementById('auth-msg');
+  el.className='auth-msg '+(type==='err'?'err':'ok');
+  el.textContent=txt; el.style.display='block';
+}
+function switchTab(t){
+  document.getElementById('tab-signup').classList.toggle('active',t==='signup');
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('form-signup').style.display=t==='signup'?'block':'none';
+  document.getElementById('form-login').style.display=t==='login'?'block':'none';
+  document.getElementById('auth-msg').style.display='none';
+}
+function doSignup(){
+  const fn=document.getElementById('su-fn').value.trim();
+  const ln=document.getElementById('su-ln').value.trim();
+  const em=document.getElementById('su-em').value.trim().toLowerCase();
+  const pw=document.getElementById('su-pw').value;
+  const pw2=document.getElementById('su-pw2').value;
+  if(!fn||!em||!pw){showMsg('err','Please fill in all fields.');return}
+  if(pw.length<6){showMsg('err','Password must be at least 6 characters.');return}
+  if(pw!==pw2){showMsg('err','Passwords do not match.');return}
+  const users=getUsers();
+  if(users[em]){showMsg('err','Email already registered. Please sign in.');return}
+  const user={email:em,name:fn+' '+ln,firstName:fn,joined:new Date().toISOString()};
+  users[em]={...user,ph:btoa(unescape(encodeURIComponent(pw)))};
+  saveUsers(users); setSess(user);
+  showMsg('ok','🎉 Account created! Loading your builder…');
+  setTimeout(()=>{document.getElementById('auth-overlay').style.display='none';applyUser(user)},1200);
+}
+function doLogin(){
+  const em=document.getElementById('li-em').value.trim().toLowerCase();
+  const pw=document.getElementById('li-pw').value;
+  if(!em||!pw){showMsg('err','Please enter email and password.');return}
+  const users=getUsers();
+  if(!users[em]){showMsg('err','No account found with this email.');return}
+  if(users[em].ph!==btoa(unescape(encodeURIComponent(pw)))){showMsg('err','Incorrect password.');return}
+  const user={email:em,name:users[em].name,firstName:users[em].firstName};
+  setSess(user);
+  showMsg('ok','✅ Welcome back, '+user.firstName+'!');
+  setTimeout(()=>{document.getElementById('auth-overlay').style.display='none';applyUser(user)},900);
+}
+function doLogout(){
+  clrSess();
+  document.getElementById('user-chip').style.display='none';
+  document.getElementById('logout-btn').style.display='none';
+  document.getElementById('auth-overlay').style.display='flex';
+  switchTab('login');
+}
+function skipAuth(){document.getElementById('auth-overlay').style.display='none'}
+function applyUser(user){
+  document.getElementById('user-chip').style.display='flex';
+  document.getElementById('logout-btn').style.display='flex';
+  document.getElementById('uname').textContent=user.firstName||user.name;
+  const av=document.getElementById('uav');
+  if(S.personal.photo){av.innerHTML=`<img src="${S.personal.photo}">`;}
+  else{av.textContent=(user.firstName||'U')[0].toUpperCase();}
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const s=getSess();
+  if(s){document.getElementById('auth-overlay').style.display='none';applyUser(s);}
+});
+
+/* ═══════════════════════════════════
+   PLATFORMS CONFIG
+═══════════════════════════════════ */
+const PLATS=[
+  {id:'linkedin',  lbl:'LinkedIn',   ic:'💼', ph:'linkedin.com/in/yourname'},
+  {id:'behance',   lbl:'Behance',    ic:'🎨', ph:'behance.net/yourname'},
+  {id:'github',    lbl:'GitHub',     ic:'💻', ph:'github.com/yourname'},
+  {id:'fiverr',    lbl:'Fiverr',     ic:'🟠', ph:'fiverr.com/yourname'},
+  {id:'upwork',    lbl:'Upwork',     ic:'🌿', ph:'upwork.com/fl/~...'},
+  {id:'instagram', lbl:'Instagram',  ic:'📸', ph:'instagram.com/yourname'},
+  {id:'twitter',   lbl:'X/Twitter',  ic:'🐦', ph:'x.com/yourname'},
+  {id:'facebook',  lbl:'Facebook',   ic:'📘', ph:'facebook.com/yourname'},
+  {id:'portfolio', lbl:'Portfolio',  ic:'🌐', ph:'yourwebsite.com'},
+  {id:'youtube',   lbl:'YouTube',    ic:'▶️', ph:'youtube.com/@yourname'},
+  {id:'dribbble',  lbl:'Dribbble',   ic:'🏀', ph:'dribbble.com/yourname'},
+  {id:'other',     lbl:'Other',      ic:'🔗', ph:'https://...'},
+];
+const LP={Beginner:35,Intermediate:60,Advanced:80,Expert:95};
+
+/* ═══════════════════════════════════
+   STATE
+═══════════════════════════════════ */
+const S={
+  step:0,
+  personal:{name:'',title:'',email:'',phone:'',location:'',summary:'',photo:''},
+  links:[],
+  skills:[{name:'',level:'Expert'}],
+  exp:[{role:'',co:'',loc:'',s:'',e:'',cur:false,bl:''}],
+  edu:[{deg:'',sch:'',yr:'',desc:''}],
+  extras:{certs:'',langs:'',tools:'',ach:''},
+};
+const STEPS=[
+  {lbl:'Personal',ic:'👤',bg:'rgba(236,72,153,.12)'},
+  {lbl:'Links',   ic:'🔗',bg:'rgba(6,214,160,.12)'},
+  {lbl:'Skills',  ic:'⚡',bg:'rgba(139,92,246,.12)'},
+  {lbl:'Jobs',    ic:'💼',bg:'rgba(6,214,160,.12)'},
+  {lbl:'Education',ic:'🎓',bg:'rgba(245,158,11,.12)'},
+  {lbl:'Extras',  ic:'🏅',bg:'rgba(236,72,153,.12)'},
+];
+
+/* ═══════════════════════════════════
+   PASSPORT PHOTO PROCESSOR
+   — Smart face-area crop + pure white background
+═══════════════════════════════════ */
+function processPhoto(file){
+  if(!file)return;
+  document.querySelector('.photo-spinner').style.display='block';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const TW=420, TH=540; // 35×45mm @ 12dpi ratio, high-res
+      const canvas=document.createElement('canvas');
+      canvas.width=TW; canvas.height=TH;
+      const ctx=canvas.getContext('2d');
+
+      // White background
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,TW,TH);
+
+      // Smart crop: passport = 7:9 ratio, face at top ~40%
+      const srcR=img.width/img.height;
+      const tgtR=TW/TH;
+      let sx,sy,sw,sh;
+      if(srcR>tgtR){
+        // image wider — crop sides
+        sh=img.height; sw=sh*tgtR;
+        sx=(img.width-sw)/2; sy=0;
+      }else{
+        // image taller — crop bottom, keep top (face area)
+        sw=img.width; sh=sw/tgtR;
+        sx=0;
+        // Bias upward: if image is much taller, assume face is in top 60%
+        const maxY=img.height-sh;
+        sy=Math.min(maxY*0.15, maxY); // take from near top
+      }
+
+      // Draw at high quality
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality='high';
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,TW,TH);
+
+      // Subtle vignette/brightness enhancement for professionalism
+      const grad=ctx.createRadialGradient(TW/2,TH/2,TH*0.3,TW/2,TH/2,TH*0.7);
+      grad.addColorStop(0,'rgba(255,255,255,0)');
+      grad.addColorStop(1,'rgba(255,255,255,0.08)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,0,TW,TH);
+
+      S.personal.photo=canvas.toDataURL('image/jpeg',0.95);
+      document.querySelector('.photo-spinner').style.display='none';
+      renderForm(); renderPreview();
+      const sess=getSess(); if(sess)applyUser(sess);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ═══════════════════════════════════
+   STEP BAR
+═══════════════════════════════════ */
+function renderStepBar(){
+  const bar=document.getElementById('step-bar');
+  let h='';
+  STEPS.forEach((s,i)=>{
+    const c=i<S.step?'done':i===S.step?'active':'';
+    h+=`<div class="sw"><div class="sc ${c}" onclick="goStep(${i})"><span class="sn">${i+1}</span></div><div class="sl ${c}">${s.lbl}</div></div>`;
+    if(i<STEPS.length-1) h+=`<div class="scon ${i<S.step?'done':''}"></div>`;
+  });
+  bar.innerHTML=h;
+}
+function goStep(n){if(n<=S.step){S.step=n;renderAll();}}
+
+/* ═══════════════════════════════════
+   FORM STEPS
+═══════════════════════════════════ */
+function renderForm(){
+  const panel=document.getElementById('form-panel');
+  const s=STEPS[S.step];
+  let body='';
+  if(S.step===0)body=fPersonal();
+  else if(S.step===1)body=fLinks();
+  else if(S.step===2)body=fSkills();
+  else if(S.step===3)body=fExp();
+  else if(S.step===4)body=fEdu();
+  else if(S.step===5)body=fExtras();
+
+  const isLast=S.step===STEPS.length-1;
+  const cvReady=S.personal.name.trim().length>0;
+
+  panel.innerHTML=`
+    <div class="fp-hdr">
+      <div class="si-bg" style="background:${s.bg}">${s.ic}</div>
+      <div><div class="fp-title">Step ${S.step+1}: ${s.lbl}</div><div class="fp-sub">Fill in your ${s.lbl.toLowerCase()} details</div></div>
+    </div>
+    <div class="fb fade-in">${body}</div>
+    <div class="nav-row">
+      ${S.step>0?`<button class="btn btn-ghost" onclick="prevStep()">← Back</button>`:'<div></div>'}
+      ${!isLast
+        ?`<button class="btn btn-primary" onclick="nextStep()">Continue →</button>`
+        :`<button class="btn btn-dl" onclick="downloadPDF()" ${cvReady?'':'disabled'}>⬇ Download PDF</button>`}
+    </div>`;
+}
+
+/* ── Step 0: Personal + Photo ── */
+function fPersonal(){
+  const p=S.personal;
+  return `
+    <div class="fg">
+      <label>Profile Photo <span style="color:var(--teal);font-size:10px;text-transform:none;letter-spacing:0;font-weight:500;">— auto passport crop + white background</span></label>
+      <div class="photo-zone ${p.photo?'ready':''}" id="pz">
+        <input type="file" class="photo-file-inp" accept="image/*" onchange="processPhoto(this.files[0])">
+        ${p.photo?`
+          <div class="pp-row">
+            <img src="${p.photo}" class="pp-img" alt="Passport photo">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:5px;">✅ Photo processed!</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.6;">35×45mm passport crop<br>White background applied<br>Click to change photo</div>
+            </div>
+          </div>
+          <div class="photo-spinner">Processing…</div>`:`
+          <div style="font-size:30px;margin-bottom:9px;">📸</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">Upload your photo</div>
+          <div style="font-size:11px;color:var(--muted);">Any photo — auto-cropped to passport size<br>White background applied automatically<br>JPG, PNG, HEIC, WEBP supported</div>
+          <div class="photo-spinner">⏳ Processing your photo…</div>`}
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Full Name <span class="req">*</span></label><input class="fi" placeholder="e.g. Ayesha Siddiqui" value="${x(p.name)}" oninput="up('name',this.value)"></div>
+      <div class="fg"><label>Professional Title <span class="req">*</span></label><input class="fi" placeholder="e.g. Graphic Designer" value="${x(p.title)}" oninput="up('title',this.value)"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Email <span class="req">*</span></label><input class="fi" type="email" placeholder="you@email.com" value="${x(p.email)}" oninput="up('email',this.value)"></div>
+      <div class="fg"><label>Phone</label><input class="fi" placeholder="+880 1XXX-XXXXXX" value="${x(p.phone)}" oninput="up('phone',this.value)"></div>
+    </div>
+    <div class="fg"><label>Location</label><input class="fi" placeholder="Dhaka, Bangladesh" value="${x(p.location)}" oninput="up('location',this.value)"></div>
+    <div class="fg">
+      <label>Professional Summary <span class="req">*</span></label>
+      <textarea class="ft" placeholder="2–4 sentences about your experience, key skills, and what you bring. Include keywords from the job description." oninput="up('summary',this.value)">${x(p.summary)}</textarea>
+      <div class="fhint">💡 Include 3–5 job-specific keywords for best ATS score</div>
+    </div>`;
+}
+
+/* ── Step 1: Links ── */
+function fLinks(){
+  const rows=S.links.map((l,i)=>{
+    const pl=PLATS.find(p=>p.id===l.pid)||PLATS[11];
+    return `<div class="link-row">
+      <select class="lic" onchange="upL(${i},'pid',this.value);renderAll()">
+        ${PLATS.map(p=>`<option value="${p.id}" ${l.pid===p.id?'selected':''}>${p.ic}</option>`).join('')}
+      </select>
+      <input class="fi" style="font-size:12px;" placeholder="${pl.ph}" value="${x(l.url)}" oninput="upL(${i},'url',this.value)">
+      <input class="fi" style="font-size:12px;" placeholder="${pl.lbl}" value="${x(l.lbl)}" oninput="upL(${i},'lbl',this.value)">
+      <button class="er" onclick="rmL(${i})">×</button>
+    </div>`;}).join('');
+
+  return `
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Add your professional profiles and portfolio links. They appear in your CV header so recruiters can find your full profile instantly.</p>
+    <div class="link-presets">
+      ${PLATS.slice(0,9).map(p=>`<button class="lp-btn" onclick="addLPreset('${p.id}')">${p.ic} ${p.lbl}</button>`).join('')}
+    </div>
+    <div id="links-list">${rows}</div>
+    <button class="add-btn" onclick="addL()">+ Add Custom Link</button>
+    <div class="fhint" style="margin-top:10px;">💡 LinkedIn is most important for ATS. Add Behance/GitHub for creative or tech roles.</div>`;
+}
+
+/* ── Step 2: Skills ── */
+function fSkills(){
+  return S.skills.map((sk,i)=>`
+    <div class="ec">
+      <div class="ec-hdr"><span class="ec-t">Skill #${i+1}</span>${S.skills.length>1?`<button class="er" onclick="rmSk(${i})">×</button>`:''}</div>
+      <div class="fr">
+        <div class="fg"><label>Skill Name</label><input class="fi" placeholder="e.g. Adobe Illustrator" value="${x(sk.name)}" oninput="upSk(${i},'name',this.value)"></div>
+        <div class="fg"><label>Level</label><div class="sls">${['Beginner','Intermediate','Advanced','Expert'].map(l=>`<button class="slb ${sk.level===l?'sel':''}" onclick="upSk(${i},'level','${l}');renderAll()">${l}</button>`).join('')}</div></div>
+      </div>
+    </div>`).join('')+`<button class="add-btn" onclick="addSk()">+ Add Skill</button><div class="fhint" style="margin-top:10px;">💡 Add 6–10 skills. Match to job description keywords.</div>`;
+}
+
+/* ── Step 3: Experience ── */
+function fExp(){
+  return S.exp.map((e,i)=>`
+    <div class="ec">
+      <div class="ec-hdr"><span class="ec-t">Job #${i+1}</span>${S.exp.length>1?`<button class="er" onclick="rmE(${i})">×</button>`:''}</div>
+      <div class="fr">
+        <div class="fg"><label>Job Title <span class="req">*</span></label><input class="fi" placeholder="Graphic Designer" value="${x(e.role)}" oninput="upE(${i},'role',this.value)"></div>
+        <div class="fg"><label>Company <span class="req">*</span></label><input class="fi" placeholder="Acme Corp" value="${x(e.co)}" oninput="upE(${i},'co',this.value)"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Location</label><input class="fi" placeholder="Dhaka, BD" value="${x(e.loc)}" oninput="upE(${i},'loc',this.value)"></div>
+        <div class="fg"><label>Duration</label>
+          <div class="fr" style="gap:8px;">
+            <input class="fi" style="font-size:12px;" placeholder="Jan 2022" value="${x(e.s)}" oninput="upE(${i},'s',this.value)">
+            <input class="fi" style="font-size:12px;" placeholder="Present" value="${x(e.e)}" oninput="upE(${i},'e',this.value)" ${e.cur?'disabled':''}>
+          </div>
+          <label style="margin-top:7px;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted);">
+            <input type="checkbox" ${e.cur?'checked':''} onchange="upE(${i},'cur',this.checked);renderAll()"> Currently working here
+          </label>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Responsibilities & Achievements</label>
+        <textarea class="ft" placeholder="• Designed 50+ materials for international clients&#10;• Increased brand engagement by 35%&#10;• Led team of 3 junior designers" oninput="upE(${i},'bl',this.value)">${x(e.bl)}</textarea>
+        <div class="fhint">💡 Start with action verbs. Quantify results when possible.</div>
+      </div>
+    </div>`).join('')+`<button class="add-btn" onclick="addE()">+ Add Another Job</button>`;
+}
+
+/* ── Step 4: Education ── */
+function fEdu(){
+  return S.edu.map((e,i)=>`
+    <div class="ec">
+      <div class="ec-hdr"><span class="ec-t">Education #${i+1}</span>${S.edu.length>1?`<button class="er" onclick="rmEd(${i})">×</button>`:''}</div>
+      <div class="fr">
+        <div class="fg"><label>Degree / Certificate <span class="req">*</span></label><input class="fi" placeholder="BSc Computer Science" value="${x(e.deg)}" oninput="upEd(${i},'deg',this.value)"></div>
+        <div class="fg"><label>Institution <span class="req">*</span></label><input class="fi" placeholder="University of Dhaka" value="${x(e.sch)}" oninput="upEd(${i},'sch',this.value)"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Year / Period</label><input class="fi" placeholder="2019 – 2023" value="${x(e.yr)}" oninput="upEd(${i},'yr',this.value)"></div>
+        <div class="fg"><label>GPA / Honors</label><input class="fi" placeholder="CGPA 3.8 / First Class" value="${x(e.desc)}" oninput="upEd(${i},'desc',this.value)"></div>
+      </div>
+    </div>`).join('')+`<button class="add-btn" onclick="addEd()">+ Add Education</button>`;
+}
+
+/* ── Step 5: Extras ── */
+function fExtras(){
+  const e=S.extras;
+  return `
+    <div class="fg"><label>Certifications & Awards</label>
+      <textarea class="ft" placeholder="• Adobe Certified Professional (2023)&#10;• Fiverr Level 2 Seller Badge&#10;• NSDA Level-3 Graphic Design" oninput="upX('certs',this.value)">${x(e.certs)}</textarea>
+    </div>
+    <div class="fg"><label>Languages</label>
+      <input class="fi" placeholder="Bengali (Native), English (Professional), Arabic (Basic)" value="${x(e.langs)}" oninput="upX('langs',this.value)">
+    </div>
+    <div class="fg"><label>Tools & Software</label>
+      <textarea class="ft" style="min-height:65px;" placeholder="Adobe Illustrator, Photoshop, Figma, Python, Django, Canva Pro" oninput="upX('tools',this.value)">${x(e.tools)}</textarea>
+    </div>
+    <div class="fg"><label>Achievements & Volunteer</label>
+      <textarea class="ft" style="min-height:65px;" placeholder="• Trained 50+ women in graphic design&#10;• Speaker at Tech Summit 2024" oninput="upX('ach',this.value)">${x(e.ach)}</textarea>
+    </div>
+    <div style="padding:14px;background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:10px;margin-top:4px;">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:5px;">🎉 Almost done!</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Review your CV in the live preview → click <strong style="color:#fff;">Download PDF</strong>.<br>A print-ready page will open. Choose <em>Save as PDF</em> in your browser's print dialog.</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════
+   UPDATERS
+═══════════════════════════════════ */
+function up(k,v){S.personal[k]=v;renderPreview();}
+function upL(i,k,v){S.links[i][k]=v;if(k==='pid'){const p=PLATS.find(x=>x.id===v);if(p&&!S.links[i].lbl)S.links[i].lbl=p.lbl;}renderPreview();}
+function upSk(i,k,v){S.skills[i][k]=v;renderPreview();}
+function upE(i,k,v){if(k==='cur'){S.exp[i].cur=v;if(v)S.exp[i].e='Present';}else S.exp[i][k]=v;renderPreview();}
+function upEd(i,k,v){S.edu[i][k]=v;renderPreview();}
+function upX(k,v){S.extras[k]=v;renderPreview();}
+function addL(){S.links.push({pid:'other',url:'',lbl:''});renderForm();renderPreview();}
+function addLPreset(pid){const p=PLATS.find(x=>x.id===pid);S.links.push({pid,url:'',lbl:p?p.lbl:''});renderForm();renderPreview();}
+function rmL(i){S.links.splice(i,1);renderForm();renderPreview();}
+function addSk(){S.skills.push({name:'',level:'Expert'});renderForm();renderPreview();}
+function rmSk(i){S.skills.splice(i,1);renderForm();renderPreview();}
+function addE(){S.exp.push({role:'',co:'',loc:'',s:'',e:'',cur:false,bl:''});renderForm();renderPreview();}
+function rmE(i){S.exp.splice(i,1);renderForm();renderPreview();}
+function addEd(){S.edu.push({deg:'',sch:'',yr:'',desc:''});renderForm();renderPreview();}
+function rmEd(i){S.edu.splice(i,1);renderForm();renderPreview();}
+function nextStep(){if(S.step<STEPS.length-1){S.step++;renderAll();window.scrollTo({top:120,behavior:'smooth'});}}
+function prevStep(){if(S.step>0){S.step--;renderAll();window.scrollTo({top:120,behavior:'smooth'});}}
+
+/* ═══════════════════════════════════
+   BUILD CV HTML  (shared preview + print)
+═══════════════════════════════════ */
+function buildCV(){
+  const p=S.personal;
+  if(!p.name.trim()) return `<div class="cv-empty-msg"><div class="cv-empty-icon">📝</div>Start filling in your details to see your CV here</div>`;
+
+  const contacts=[];
+  if(p.email)    contacts.push('✉ '+p.email);
+  if(p.phone)    contacts.push('📞 '+p.phone);
+  if(p.location) contacts.push('📍 '+p.location);
+
+  const linksHtml=S.links.filter(l=>l.url).map(l=>{
+    const pl=PLATS.find(q=>q.id===l.pid)||{ic:'🔗',lbl:'Link'};
+    const lbl=l.lbl||pl.lbl;
+    const href=l.url.startsWith('http')?l.url:'https://'+l.url;
+    return `<a href="${href}">${pl.ic} ${x(lbl)}: ${x(l.url.replace(/^https?:\/\//,''))}</a>`;
+  }).join('');
+
+  const skHtml=S.skills.filter(s=>s.name).map(s=>`
+    <div class="cvskr">
+      <span class="cvsn">${x(s.name)}</span>
+      <div class="cvsbg"><div class="cvsf" style="width:${LP[s.level]||80}%"></div></div>
+      <span class="cvsp">${s.level}</span>
+    </div>`).join('');
+
+  const exHtml=S.exp.filter(e=>e.role||e.co).map(e=>{
+    const bls=e.bl.trim().split('\n').filter(Boolean).map(b=>`<li>${x(b.replace(/^[•\-\*]\s*/,''))}</li>`).join('');
+    const per=[e.s,e.cur?'Present':e.e].filter(Boolean).join(' – ');
+    return `<div class="cve">
+      <div class="cveh"><span class="cver">${x(e.role)}</span><span class="cved">${x(per)}</span></div>
+      <div class="cveo">${x(e.co)}${e.loc?' · '+x(e.loc):''}</div>
+      ${bls?`<ul class="cvbl">${bls}</ul>`:''}
+    </div>`;}).join('');
+
+  const edHtml=S.edu.filter(e=>e.deg||e.sch).map(e=>`
+    <div class="cve">
+      <div class="cveh"><span class="cver">${x(e.deg)}</span><span class="cved">${x(e.yr)}</span></div>
+      <div class="cveo">${x(e.sch)}</div>
+      ${e.desc?`<div class="cveds">${x(e.desc)}</div>`:''}
+    </div>`).join('');
+
+  const ex=S.extras;
+  const certs=ex.certs.trim().split('\n').filter(Boolean).map(c=>`<li>${x(c.replace(/^[•\-\*]\s*/,''))}</li>`).join('');
+  const ach=ex.ach.trim().split('\n').filter(Boolean).map(c=>`<li>${x(c.replace(/^[•\-\*]\s*/,''))}</li>`).join('');
+  const tools=ex.tools.trim().split(/[,\n]/).map(t=>t.trim()).filter(Boolean);
+
+  return `
+    <div class="cv-hdr">
+      <div class="cv-hdr-inner">
+        ${p.photo?`<img src="${p.photo}" class="cv-photo" alt="${x(p.name)}">`:''}
+        <div class="cv-hdr-txt">
+          <div class="cv-name">${x(p.name)}</div>
+          ${p.title?`<div class="cv-prof">${x(p.title)}</div>`:''}
+          <div class="cv-contacts">${contacts.map(c=>`<span>${x(c)}</span>`).join('')}</div>
+          ${linksHtml?`<div class="cv-links">${linksHtml}</div>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="cv-body">
+      ${p.summary?`<div class="cvs"><div class="cvst">Professional Summary</div><div class="cvsum">${x(p.summary)}</div></div>`:''}
+      ${skHtml?`<div class="cvs"><div class="cvst">Technical Skills</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 16px;">${skHtml}</div></div>`:''}
+      <div class="cv2c">
+        ${exHtml?`<div class="cvs"><div class="cvst">Work Experience</div>${exHtml}</div>`:''}
+        <div>
+          ${edHtml?`<div class="cvs"><div class="cvst">Education</div>${edHtml}</div>`:''}
+          ${ex.langs?`<div class="cvs"><div class="cvst">Languages</div><div class="cveds">${x(ex.langs)}</div></div>`:''}
+          ${tools.length?`<div class="cvs"><div class="cvst">Tools & Software</div><div class="cvtags">${tools.map(t=>`<span class="cvtag">${x(t)}</span>`).join('')}</div></div>`:''}
+          ${certs?`<div class="cvs"><div class="cvst">Certifications</div><ul class="cvbl">${certs}</ul></div>`:''}
+          ${ach?`<div class="cvs"><div class="cvst">Achievements</div><ul class="cvbl">${ach}</ul></div>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderPreview(){
+  document.getElementById('cvdoc').innerHTML=buildCV();
+  updateATS();
+}
+
+/* ═══════════════════════════════════
+   ATS SCORE
+═══════════════════════════════════ */
+function updateATS(){
+  const p=S.personal;
+  let sc=0;
+  if(p.name.trim())sc+=12;
+  if(p.title.trim())sc+=8;
+  if(p.email.trim())sc+=8;
+  if(p.photo)sc+=5;
+  if(p.summary.trim().length>80)sc+=18;
+  else if(p.summary.trim())sc+=9;
+  if(S.links.filter(l=>l.url).length>=1)sc+=7;
+  if(S.links.filter(l=>l.url).length>=3)sc+=5;
+  if(S.skills.filter(s=>s.name).length>=3)sc+=10;
+  if(S.skills.filter(s=>s.name).length>=6)sc+=5;
+  if(S.exp.filter(e=>e.role).length>=1)sc+=10;
+  if(S.exp.some(e=>e.bl.trim().length>30))sc+=7;
+  if(S.edu.filter(e=>e.deg).length>=1)sc+=5;
+  const pct=Math.min(sc,100);
+  const col=pct<40?'#ef4444':pct<70?'#f59e0b':'#06d6a0';
+  const lbl=pct<40?'Needs Work':pct<70?'Good':pct<90?'Great!':'Excellent!';
+  document.getElementById('ats-fill').style.width=pct+'%';
+  document.getElementById('ats-fill').style.background=col;
+  document.getElementById('ats-lbl').textContent=pct+'% — '+lbl;
+  document.getElementById('ats-val').textContent=pct+'%';
+  const b=document.getElementById('ats-badge');
+  b.style.color=col; b.style.borderColor=col+'40'; b.style.background=col+'15';
+}
+
+/* ═══════════════════════════════════
+   PDF DOWNLOAD  — opens print-ready page
+   PDF ONLY, no HTML save
+═══════════════════════════════════ */
+function downloadPDF(){
+  const p=S.personal;
+  if(!p.name.trim()){alert('Please fill in your name first!');return;}
+
+  const cvHTML=buildCV();
+  const pw=window.open('','_blank');
+  if(!pw){alert('Please allow popups for this site to download your CV.');return;}
+
+  pw.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${p.name} — ATS CV</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',Calibri,Arial,sans-serif;color:#1a1a1a;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:210mm;margin:0 auto;padding:15mm 18mm 13mm}
+.cv-hdr{padding-bottom:12px;border-bottom:2.5px solid #c2185b;margin-bottom:14px}
+.cv-hdr-inner{display:flex;align-items:flex-start;gap:16px}
+.cv-photo{width:72px;height:92px;border-radius:5px;object-fit:cover;object-position:center top;border:2.5px solid #c2185b;flex-shrink:0}
+.cv-hdr-txt{flex:1}
+.cv-name{font-family:'Fraunces',Georgia,serif;font-size:23pt;font-weight:700;color:#c2185b;line-height:1;margin-bottom:3px}
+.cv-prof{font-size:10.5pt;color:#444;font-weight:500;margin-bottom:7px}
+.cv-contacts{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:9pt;color:#555}
+.cv-links{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:8.5pt;color:#555;margin-top:4px}
+.cv-links a{color:#555;text-decoration:none}
+.cv-body{padding-top:0}
+.cvs{margin-bottom:12px}
+.cvst{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#c2185b;border-bottom:1.5px solid #c2185b;padding-bottom:3px;margin-bottom:9px;display:inline-block}
+.cve{margin-bottom:9px}
+.cveh{display:flex;justify-content:space-between;align-items:baseline}
+.cver{font-size:10.5pt;font-weight:700;color:#1a1a1a}
+.cved{font-size:8.5pt;color:#c2185b;font-weight:600;white-space:nowrap;margin-left:8px;flex-shrink:0}
+.cveo{font-size:9.5pt;color:#555;font-style:italic;margin-top:1px}
+.cveds{font-size:9.5pt;color:#444;line-height:1.55;margin-top:3px}
+.cvbl{padding-left:15px;margin-top:4px}
+.cvbl li{font-size:9.5pt;color:#444;line-height:1.6;margin-bottom:2px}
+.cvtags{display:flex;flex-wrap:wrap;gap:3px 5px}
+.cvtag{background:#fce4ec;color:#c2185b;border:1px solid #f48fb1;border-radius:3px;padding:2px 6px;font-size:8.5pt;font-weight:600}
+.cvskr{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cvsn{font-size:9.5pt;font-weight:600;width:140px;flex-shrink:0;color:#222}
+.cvsbg{background:#e0e0e0;border-radius:3px;height:6px;flex:1}
+.cvsf{background:linear-gradient(to right,#c2185b,#7b1fa2);border-radius:3px;height:100%}
+.cvsp{font-size:8.5pt;color:#888;width:65px}
+.cv2c{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cvsum{font-size:9.5pt;color:#333;line-height:1.65}
+.credit{margin-top:16px;padding-top:10px;border-top:1px solid #eee;font-size:7.5pt;color:#ccc;text-align:center}
+@media print{
+  body{margin:0}
+  .page{padding:12mm 14mm}
+  @page{size:A4;margin:0}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  ${cvHTML}
+  <div class="credit">Created with the Free ATS CV Builder · Built by Tania Rahman · fiverr.com/designer_taniar · taniarahman.freelancer@gmail.com</div>
+</div>
+<script>
+  window.onload=function(){
+    setTimeout(function(){
+      window.print();
+    },800);
+  };
+  window.onafterprint=function(){
+    window.close();
+  };
+<\/script>
+</body>
+</html>`);
+  pw.document.close();
+}
+
+/* ═══════════════════════════════════
+   UTILS
+═══════════════════════════════════ */
+function x(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function renderAll(){renderStepBar();renderForm();renderPreview();}
+renderAll();
+</script>
+</body>
+</html>
 
